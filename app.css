@@ -1,0 +1,175 @@
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--wa-color-surface-lowered);
+}
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--wa-space-xl) var(--wa-space-m);
+  padding-top: max(var(--wa-space-xl), env(safe-area-inset-top));
+  padding-bottom: max(var(--wa-space-xl), env(safe-area-inset-bottom));
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+.quiet {
+  color: var(--wa-color-text-quiet);
+}
+
+.filename {
+  overflow-wrap: anywhere;
+}
+
+/* Feste Bühne: jedes Bild wird proportional in dieselbe Fläche skaliert. */
+.stage {
+  height: min(60vh, 560px);
+  height: min(60dvh, 560px);
+  border-radius: var(--wa-border-radius-m);
+  background: var(--wa-color-surface-lowered);
+  overflow: hidden;
+}
+
+.stage-compact {
+  height: min(45vh, 420px);
+  height: min(45dvh, 420px);
+}
+
+.stage img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+#learn-img {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Feste Höhe, damit das Layout beim Aufdecken nicht springt. */
+.answer {
+  min-height: 4.5rem;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  font-size: var(--wa-font-size-xl);
+  font-weight: var(--wa-font-weight-semibold);
+  white-space: pre-wrap;
+  padding: var(--wa-space-s);
+  border-radius: var(--wa-border-radius-m);
+  border: var(--wa-border-width-s) dashed var(--wa-color-surface-border);
+}
+
+.answer.revealed {
+  border-style: solid;
+  border-color: var(--wa-color-brand-border-normal);
+  background: var(--wa-color-brand-fill-quiet);
+}
+
+.actions {
+  justify-content: flex-end;
+}
+
+.hint {
+  text-align: end;
+}
+
+/* Kartenliste */
+.card-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--wa-space-xs);
+}
+
+.card-row {
+  display: flex;
+  margin: 0;
+  align-items: center;
+  gap: var(--wa-space-m);
+  padding: var(--wa-space-xs);
+  padding-inline-end: var(--wa-space-s);
+  border-radius: var(--wa-border-radius-m);
+  border: var(--wa-border-width-s) solid var(--wa-color-surface-border);
+  background: var(--wa-color-surface-default);
+}
+
+.thumb {
+  flex: none;
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: var(--wa-border-radius-s);
+  background: var(--wa-color-surface-lowered);
+}
+
+.card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-text {
+  font-weight: var(--wa-font-weight-semibold);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.toast {
+  position: fixed;
+  right: var(--wa-space-m);
+  bottom: max(var(--wa-space-m), env(safe-area-inset-bottom));
+  left: var(--wa-space-m);
+  z-index: 1000;
+  max-width: 26rem;
+  margin-inline-start: auto;
+}
+
+/* Schmale Bildschirme: Tab-Icons ausblenden, damit alle vier Reiter passen */
+@media (max-width: 520px) {
+  main {
+    padding-inline: var(--wa-space-s);
+  }
+
+  wa-tab wa-icon {
+    display: none;
+  }
+
+  wa-tab::part(base) {
+    padding-inline: var(--wa-space-s);
+  }
+
+  .stage {
+    height: 48dvh;
+  }
+
+  .stage-compact {
+    height: 38dvh;
+  }
+
+  main {
+    padding-top: max(var(--wa-space-m), env(safe-area-inset-top));
+  }
+
+  .thumb {
+    width: 56px;
+    height: 56px;
+  }
+
+  .card-row {
+    gap: var(--wa-space-s);
+  }
+}
+
+[hidden] {
+  display: none !important;
+}

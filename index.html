@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="de" class="wa-dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Bild-Karteikarten</title>
+    <meta name="description" content="Bilder beschreiben und als Karteikarten lernen – alle Daten bleiben auf dem Gerät." />
+    <meta name="theme-color" content="#0b0d12" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Karteikarten" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icon-180.png" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@awesome.me/webawesome@3.14.0/dist-cdn/styles/webawesome.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@awesome.me/webawesome@3.14.0/dist-cdn/webawesome.loader.js"></script>
+    <link rel="stylesheet" href="app.css" />
+  </head>
+  <body>
+    <main class="wa-stack wa-gap-l">
+      <header class="wa-split">
+        <h1 class="wa-heading-l">Bild-Karteikarten</h1>
+        <div class="wa-cluster wa-gap-xs">
+          <wa-badge variant="neutral" appearance="filled" id="stat-cards">0 Karten</wa-badge>
+          <wa-badge variant="warning" appearance="filled" id="stat-pending" hidden>0 neu</wa-badge>
+        </div>
+      </header>
+
+      <wa-tab-group id="modes">
+        <wa-tab panel="label">
+          <wa-icon name="pen-to-square" slot="start"></wa-icon>
+          <span class="tab-label">Beschreiben</span>
+        </wa-tab>
+        <wa-tab panel="learn">
+          <wa-icon name="layer-group" slot="start"></wa-icon>
+          <span class="tab-label">Lernen</span>
+        </wa-tab>
+        <wa-tab panel="list">
+          <wa-icon name="list" slot="start"></wa-icon>
+          <span class="tab-label">Karten</span>
+        </wa-tab>
+        <wa-tab panel="data">
+          <wa-icon name="database" slot="start"></wa-icon>
+          <span class="tab-label">Daten</span>
+        </wa-tab>
+
+        <!-- Modus 1: Bilder einlesen und beschreiben -->
+        <wa-tab-panel name="label">
+          <div class="wa-stack wa-gap-m">
+            <div class="wa-cluster wa-gap-s">
+              <wa-button variant="brand" id="btn-pick-folder">
+                <wa-icon name="folder-open" slot="start"></wa-icon>
+                Ordner wählen
+              </wa-button>
+              <wa-button variant="brand" appearance="outlined" id="btn-pick-files">
+                <wa-icon name="images" slot="start"></wa-icon>
+                Bilder wählen
+              </wa-button>
+              <input type="file" id="input-folder" webkitdirectory multiple hidden />
+              <input type="file" id="input-files" accept="image/*,.heic,.heif" multiple hidden />
+            </div>
+            <p class="wa-caption-m quiet">
+              Bilder werden nur in diesem Browser auf diesem Gerät gespeichert. Wähle denselben Ordner erneut,
+              um neu hinzugekommene Bilder abzufragen – bekannte Bilder werden übersprungen.
+            </p>
+
+            <div class="wa-stack wa-gap-xs" id="import-progress" hidden>
+              <span class="wa-caption-m" id="import-status">Bilder werden eingelesen …</span>
+              <wa-progress-bar id="import-bar" value="0"></wa-progress-bar>
+            </div>
+
+            <wa-callout variant="neutral" id="label-empty">
+              <wa-icon slot="icon" name="circle-info"></wa-icon>
+              <span id="label-empty-text">Noch keine Bilder. Wähle einen Ordner oder einzelne Bilder aus.</span>
+            </wa-callout>
+
+            <wa-card id="label-card" hidden>
+              <div class="wa-stack wa-gap-m">
+                <div class="wa-split">
+                  <span class="wa-caption-m quiet filename" id="label-file"></span>
+                  <span class="wa-caption-m" id="label-pos"></span>
+                </div>
+                <wa-progress-bar id="label-progress" value="0"></wa-progress-bar>
+                <div class="stage stage-compact"><img id="label-img" alt="" /></div>
+                <wa-textarea
+                  id="label-text"
+                  label="Was ist auf dem Bild zu sehen?"
+                  hint="Strg/Cmd + Enter speichert"
+                  rows="3"
+                  resize="auto"
+                ></wa-textarea>
+                <div class="wa-cluster wa-gap-s actions">
+                  <wa-button appearance="outlined" id="btn-skip">Überspringen</wa-button>
+                  <wa-button variant="brand" id="btn-save">
+                    <wa-icon name="check" slot="start"></wa-icon>
+                    Speichern &amp; weiter
+                  </wa-button>
+                </div>
+              </div>
+            </wa-card>
+          </div>
+        </wa-tab-panel>
+
+        <!-- Modus 2: Lernen -->
+        <wa-tab-panel name="learn">
+          <div class="wa-stack wa-gap-m">
+            <wa-callout variant="neutral" id="learn-empty" hidden>
+              <wa-icon slot="icon" name="circle-info"></wa-icon>
+              Noch keine Karten vorhanden. Beschreibe zuerst Bilder im Modus „Beschreiben“.
+            </wa-callout>
+
+            <wa-card id="learn-card" hidden>
+              <div class="wa-stack wa-gap-m">
+                <div class="wa-split">
+                  <span class="wa-caption-m">Runde <span id="learn-round">1</span></span>
+                  <span class="wa-caption-m" id="learn-pos"></span>
+                </div>
+                <div class="stage"><img id="learn-img" alt="Lernkarte" /></div>
+                <div class="answer" id="learn-answer" aria-live="polite">
+                  <span class="quiet">?</span>
+                </div>
+                <div class="wa-cluster wa-gap-s actions">
+                  <wa-button appearance="plain" id="btn-edit" hidden>
+                    <wa-icon name="pen" slot="start"></wa-icon>
+                    Bearbeiten
+                  </wa-button>
+                  <wa-button variant="brand" id="btn-reveal">
+                    <wa-icon name="eye" slot="start"></wa-icon>
+                    Aufdecken
+                  </wa-button>
+                  <wa-button variant="brand" id="btn-next" hidden>
+                    Nächstes Bild
+                    <wa-icon name="arrow-right" slot="end"></wa-icon>
+                  </wa-button>
+                </div>
+                <span class="wa-caption-s quiet hint">Leertaste: aufdecken / weiter · Tippen aufs Bild: aufdecken / weiter</span>
+              </div>
+            </wa-card>
+          </div>
+        </wa-tab-panel>
+
+        <!-- Modus 3: Kartenliste -->
+        <wa-tab-panel name="list">
+          <div class="wa-stack wa-gap-m">
+            <wa-input id="list-filter" placeholder="Karten durchsuchen …" with-clear>
+              <wa-icon name="magnifying-glass" slot="start"></wa-icon>
+            </wa-input>
+            <wa-callout variant="neutral" id="list-empty" hidden>
+              <wa-icon slot="icon" name="circle-info"></wa-icon>
+              <span id="list-empty-text"></span>
+            </wa-callout>
+            <ul class="card-list" id="list"></ul>
+          </div>
+        </wa-tab-panel>
+
+        <!-- Modus 4: Daten & Sicherung -->
+        <wa-tab-panel name="data">
+          <div class="wa-stack wa-gap-l">
+            <wa-card>
+              <div class="wa-stack wa-gap-s">
+                <h2 class="wa-heading-s">Speicher auf diesem Gerät</h2>
+                <p class="wa-caption-m quiet" id="storage-usage">–</p>
+                <wa-callout id="persist-callout" variant="warning" appearance="filled-outlined">
+                  <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
+                  <span id="persist-text"></span>
+                </wa-callout>
+                <div class="wa-cluster">
+                  <wa-button appearance="outlined" id="btn-persist">
+                    <wa-icon name="lock" slot="start"></wa-icon>
+                    Dauerhaft speichern anfragen
+                  </wa-button>
+                </div>
+              </div>
+            </wa-card>
+
+            <wa-card>
+              <div class="wa-stack wa-gap-s">
+                <h2 class="wa-heading-s">Sicherung</h2>
+                <p class="wa-caption-m quiet">
+                  Exportiert alle Bilder und Beschreibungen in eine Datei. Damit kannst du sichern oder auf ein
+                  anderes Gerät übertragen. Beim Import werden vorhandene Karten zusammengeführt (die neuere
+                  Beschreibung gewinnt).
+                </p>
+                <div class="wa-cluster wa-gap-s">
+                  <wa-button variant="brand" id="btn-export">
+                    <wa-icon name="download" slot="start"></wa-icon>
+                    Exportieren
+                  </wa-button>
+                  <wa-button appearance="outlined" id="btn-import">
+                    <wa-icon name="upload" slot="start"></wa-icon>
+                    Sicherung importieren
+                  </wa-button>
+                  <input type="file" id="input-backup" accept=".json,application/json" hidden />
+                </div>
+              </div>
+            </wa-card>
+
+            <wa-card>
+              <div class="wa-stack wa-gap-s">
+                <h2 class="wa-heading-s">Aufräumen</h2>
+                <p class="wa-caption-m quiet" id="ignored-text"></p>
+                <div class="wa-cluster wa-gap-s">
+                  <wa-button appearance="outlined" id="btn-clear-ignored">Ignorierliste leeren</wa-button>
+                  <wa-button variant="danger" appearance="outlined" id="btn-clear-all">
+                    <wa-icon name="trash" slot="start"></wa-icon>
+                    Alle Daten löschen
+                  </wa-button>
+                </div>
+              </div>
+            </wa-card>
+          </div>
+        </wa-tab-panel>
+      </wa-tab-group>
+    </main>
+
+    <wa-dialog id="edit-dialog" label="Beschreibung bearbeiten">
+      <wa-textarea id="edit-text" rows="3" resize="auto"></wa-textarea>
+      <wa-button slot="footer" appearance="outlined" data-dialog="close">Abbrechen</wa-button>
+      <wa-button slot="footer" variant="brand" id="btn-edit-save">Speichern</wa-button>
+    </wa-dialog>
+
+    <wa-dialog id="delete-dialog" label="Karte löschen">
+      <div class="wa-stack wa-gap-m">
+        <p>Karte <strong id="delete-file"></strong> löschen?</p>
+        <wa-checkbox id="delete-ignore" checked>
+          Bild bei künftigen Importen ignorieren
+          <span slot="hint">Ohne Haken wird das Bild beim nächsten Einlesen desselben Ordners erneut abgefragt.</span>
+        </wa-checkbox>
+      </div>
+      <wa-button slot="footer" appearance="outlined" data-dialog="close">Abbrechen</wa-button>
+      <wa-button slot="footer" variant="danger" id="btn-delete-confirm">
+        <wa-icon name="trash" slot="start"></wa-icon>
+        Löschen
+      </wa-button>
+    </wa-dialog>
+
+    <wa-dialog id="clear-dialog" label="Alle Daten löschen">
+      <p>
+        Löscht alle Bilder, Beschreibungen und die Ignorierliste aus diesem Browser. Das lässt sich nicht
+        rückgängig machen – exportiere vorher eine Sicherung, wenn du die Daten behalten willst.
+      </p>
+      <wa-button slot="footer" appearance="outlined" data-dialog="close">Abbrechen</wa-button>
+      <wa-button slot="footer" variant="danger" id="btn-clear-confirm">Endgültig löschen</wa-button>
+    </wa-dialog>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
